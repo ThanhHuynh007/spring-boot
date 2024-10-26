@@ -1,13 +1,15 @@
 package com.example.demo.controller;
 
 
-import org.springframework.stereotype.Controller;
+import com.example.demo.model.User;
+import com.example.demo.model.UserDemo;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Controller
+@RestController
+@RequestMapping("/api")
 public class UserController {
 
     @GetMapping("/user")
@@ -16,15 +18,26 @@ public class UserController {
         return "user";
     }
 
+    @GetMapping("/listUser")
+    public String listUser(Model model) {
+        model.addAttribute("user", new User());
+        return "listUser";
+    }
+
     @GetMapping("/addUser")
     public String addUser(Model model) {
         model.addAttribute("user", new User());
         return "addUser";
     }
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/addUser")
-    public void saveUser(@ModelAttribute("user")User user) {
-        System.out.println("firstName:" + user.getFirstName());
-        System.out.println("lastName:" + user.getLastName());
+    public void saveUser(@ModelAttribute("user") UserDemo user) {
+        System.out.println("firstName: " + user.getFirstName());
+        System.out.println("lastName: " + user.getLastName());
+
+        userService.saveOrUpdate(user);
     }
 }
