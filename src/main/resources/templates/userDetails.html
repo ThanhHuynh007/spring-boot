@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <h1>User Information</h1>
+  <p>First Name: <span th:text="${user.firstName}"></span></p>
+  <p>Last Name: <span th:text="${user.lastName}"></span></p>
+
+  <!-- Thêm các thông tin khác nếu cần -->
+  <button><a href="/addUser">Back to form</a></button> <!-- Link để quay lại form thêm user -->
+</body>
+</html>
