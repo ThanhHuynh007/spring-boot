@@ -3,6 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <title>Add Company</title>
+    <style>
+        /* Global styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: url('https://img.pikbest.com/09/10/93/602pIkbEsTFIx.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.85); /* Semi-transparent overlay */
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
+        }
+
+        label {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            display: block;
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #2575fc;
+            outline: none;
+            box-shadow: 0 0 8px rgba(79, 172, 254, 0.3);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button[type="submit"]:hover {
+            background-color: #00f2fe;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button[type="submit"]:active {
+            background-color: #0092c8;
+            transform: translateY(1px);
+        }
+
+        /* Mobile-friendly styling */
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 30px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            input[type="text"] {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            button[type="submit"] {
+                padding: 10px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
 </head>
 <body>
 <form th:action="@{/addCompany}" th:object="${company}" method="POST">
