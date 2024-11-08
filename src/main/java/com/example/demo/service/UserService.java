@@ -17,6 +17,6 @@ public class UserService {
     }
 
     public List<UserDemo> getAllUsers() {
-        return (List<UserDemo>) userRepository.findAll(); // Chuyển đổi về List
+        return userRepository.findAll();
     }
 }
