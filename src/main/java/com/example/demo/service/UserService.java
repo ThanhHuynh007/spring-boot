@@ -9,14 +9,20 @@ import java.util.List;
 
 @Service
 public class UserService {
+
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public void saveOrUpdate(UserDemo user) {
         userRepository.save(user);
     }
 
+
     public List<UserDemo> getAllUsers() {
-        return (List<UserDemo>) userRepository.findAll(); // Chuyển đổi về List
+        return (List<UserDemo>) userRepository.findAll();
     }
 }
