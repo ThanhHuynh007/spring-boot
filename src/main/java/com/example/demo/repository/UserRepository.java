@@ -1,10 +1,10 @@
-// UserRepository.java
-package com.example.demo2.repository;
+package com.example.demo.repository;
 
-import com.example.demo2.model.UserDemo;
+import com.example.demo.model.UserDemo;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
 public interface UserRepository extends CrudRepository<UserDemo, Integer> {
+    @Override
+    List<UserDemo> findAll();
 }

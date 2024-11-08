@@ -1,29 +1,40 @@
-package com.example.demo2.model;
+package com.example.demo.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.Id;
 
-@Setter
-@Getter
 @Entity
-@Table(name = "app_user")  // Đổi tên bảng để tránh xung đột với từ khóa
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID tự động tăng
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String firstName;
     private String lastName;
 
-    public User() {
+    public Long getId() {
+        return id;
     }
 
-    public User(String firstName, String lastName) {
-        this.firstName = firstName;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 }
