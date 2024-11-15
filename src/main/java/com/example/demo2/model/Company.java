@@ -20,7 +20,7 @@ public class Company {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST, orphanRemoval = false)
     private List<UserDemo> users = new ArrayList<>();
 
     // Constructor

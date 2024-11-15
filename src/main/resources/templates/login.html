@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <style>
+        /* Đặt nền và căn giữa nội dung */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        /* Tạo khung cho form đăng nhập */
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Tiêu đề */
+        .login-container h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        /* Các ô nhập liệu và nút bấm */
+        .form-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* Liên kết đăng ký, quên mật khẩu */
+        .extra-links {
+            margin-top: 1rem;
+            color: #777;
+        }
+
+        .extra-links a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .extra-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h2>Sign In to Your Account</h2>
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required/>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required/>
+        </div>
+        <input type="submit" value="Sign In"/>
+    </form>
+    <div class="extra-links">
+        <p><a href="#">Forgot Password?</a></p>
+        <p>Don't have an account? <a href="#">Sign Up</a></p>
+    </div>
+</div>
+</body>
+</html>

@@ -63,4 +63,5 @@ public class CompanyController {
         redirectAttributes.addFlashAttribute("message", "Company deleted successfully!");
         return "redirect:/companies";
     }
+
 }

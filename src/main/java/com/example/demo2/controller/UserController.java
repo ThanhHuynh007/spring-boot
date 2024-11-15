@@ -49,4 +49,11 @@ public class UserController {
         model.addAttribute("users", users);
         return "userList";
     }
+
+    // Login
+    @GetMapping("/login")
+    public String login() {
+        return "login";  // Trả về tên của trang login (login.html trong thư mục templates)
+    }
+
 }
