@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CompanyService {
@@ -43,9 +42,15 @@ public class CompanyService {
     // Delete a company by ID
     @Transactional
     public void deleteCompany(Long id) {
-        if (!companyRepository.existsById(id)) {
-            throw new RuntimeException("Company not found with id: " + id);
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
+
+        // Ngắt liên kết tất cả các UserDemo
+        for (UserDemo user : company.getUsers()) {
+            user.setCompany(null); // Ngắt liên kết với công ty
+            userRepository.save(user); // Lưu lại UserDemo với company = null
         }
+
         companyRepository.deleteById(id);
     }
 
