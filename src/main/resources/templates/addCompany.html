@@ -1,128 +1,43 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Company</title>
-    <style>
-        /* Global styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-        }
-
-        body {
-            background: url('https://c4.wallpaperflare.com/wallpaper/480/460/889/vector-the-city-view-style-building-hd-wallpaper-preview.jpg') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #fff;
-        }
-
-        .form-container {
-            width: 100%;
-            max-width: 450px;
-            background: rgba(255, 255, 255, 0.85); /* Semi-transparent overlay */
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        h1 {
-            color: #ffffff;
-            font-size: 2.5em;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
-        }
-
-        label {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: white;
-            display: block;
-            margin-bottom: 8px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-            color: #333;
-            margin-bottom: 20px;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="text"]:focus {
-            border-color: #2575fc;
-            outline: none;
-            box-shadow: 0 0 8px rgba(79, 172, 254, 0.3);
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.3s ease, background-color 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        button[type="submit"]:hover {
-            background-color: #00f2fe;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        button[type="submit"]:active {
-            background-color: #0092c8;
-            transform: translateY(1px);
-        }
-
-        /* Mobile-friendly styling */
-        @media (max-width: 480px) {
-            .form-container {
-                padding: 30px;
-                max-width: 100%;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            input[type="text"] {
-                padding: 10px;
-                font-size: 0.9em;
-            }
-
-            button[type="submit"] {
-                padding: 10px;
-                font-size: 1.1em;
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-<form th:action="@{/addCompany}" th:object="${company}" method="POST">
-    <label for="name">Company Name:</label>
-    <input type="text" id="name" th:field="*{name}" placeholder="Enter company name" required />
+<div class="flex items-center justify-center min-h-screen p-12 bg-gray-50">
+    <div class="mx-auto w-full max-w-[550px] bg-white p-8 rounded-lg shadow-lg">
+        <form th:action="@{/companies/add}" th:object="${company}" method="post">
+            <!-- Company Name Input -->
+            <div class="mb-6">
+                <label for="name" class="block text-lg font-medium text-[#07074D] mb-3">
+                    Company Name
+                </label>
+                <input th:field="*{name}" type="text" name="name" id="name" placeholder="Enter Company Name"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6A64F1]" />
+            </div>
 
-    <button type="submit">Save</button>
-</form>
+            <!-- User List (Checkboxes) -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-[#07074D] mb-3">User List</h3>
+                <div th:each="user : ${users}">
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" th:field="*{users}" th:value="${user.id}" id="user-${user.id}" class="mr-3"/>
+                        <label th:for="user-${user.id}" class="text-base text-[#6B7280]" th:text="${user.firstName + ' ' + user.lastName}"></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div>
+                <button type="submit"
+                        class="w-full bg-[#6A64F1] text-white py-3 px-8 rounded-md text-base font-semibold hover:bg-[#5a54e0] focus:outline-none focus:ring-2 focus:ring-[#6A64F1]">
+                    Add
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>

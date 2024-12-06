@@ -1,51 +1,25 @@
-// Company.java
 package com.example.demo2.model;
 
 import jakarta.persistence.*;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "COMPANY")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Company {
-
-    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    private Integer id;
 
-    @Setter
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST, orphanRemoval = false)
+    @OneToMany(mappedBy = "company", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = false)
     private List<UserDemo> users = new ArrayList<>();
-
-    // Constructor
-    public Company() {}
-
-    public Company(String name) {
-        this.name = name;
-    }
-
-    // Getters and setters for id and name
-    public Long getId() { return id; }
-
-    public String getName() { return name; }
-
-    public List<UserDemo> getUsers() { return users; }
-
-    // Helper method to add a user
-    public void addUser(UserDemo user) {
-        users.add(user);
-        user.setCompany(this);
-    }
-
-    // Helper method to remove a user
-    public void removeUser(UserDemo user) {
-        users.remove(user);
-        user.setCompany(null);
-    }
 }

@@ -1,81 +1,66 @@
-// CompanyService.java
 package com.example.demo2.service;
 
+
+import com.example.demo2.dto.CompanyDTO;
+import com.example.demo2.dto.UserDTO;
 import com.example.demo2.model.Company;
 import com.example.demo2.model.UserDemo;
 import com.example.demo2.repository.CompanyRepository;
-import com.example.demo2.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Data
 public class CompanyService {
-
-    private final CompanyRepository companyRepository;
-    private final UserRepository userRepository;
-
     @Autowired
-    public CompanyService(CompanyRepository companyRepository, UserRepository userRepository) {
-        this.companyRepository = companyRepository;
-        this.userRepository = userRepository;
+    private CompanyRepository companyRepository;
+
+    public List<CompanyDTO> getAllCompanies() {
+        List<Company> companies = companyRepository.findAll();
+
+        return companies.stream()
+                .map(company -> new CompanyDTO(
+                        company.getId(),
+                        company.getName(),
+                        company.getUsers().stream()
+                                .map(user -> new UserDTO(
+                                        user.getId(),
+                                        user.getEmail(),
+                                        user.getFirstName(),
+                                        user.getLastName()
+                                ))
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
     }
 
-    // Retrieve all companies
-    public List<Company> getAllCompanies() {
-        return (List<Company>) companyRepository.findAll();
+    // Lấy công ty theo ID
+    public Company getCompanyById(Integer id) {
+        return companyRepository.findById(id).orElse(null);
     }
 
-    // Save or update a company
-    public Company saveOrUpdate(Company company) {
-        return companyRepository.save(company);
-    }
-
-    // Retrieve a single company by ID
-    public Company getCompanyById(Long id) {
-        return companyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
-    }
-
-    // Delete a company by ID
-    @Transactional
-    public void deleteCompany(Long id) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
-
-        // Ngắt liên kết tất cả các UserDemo
+    // Xóa công ty theo ID
+    public void deleteCompany(Integer id) {
+        Company company = companyRepository.findById(id).orElseThrow(() -> new RuntimeException("Company not found"));
         for (UserDemo user : company.getUsers()) {
-            user.setCompany(null); // Ngắt liên kết với công ty
-            userRepository.save(user); // Lưu lại UserDemo với company = null
+            user.setCompany(null);
         }
 
-        // Xóa Company sau khi ngắt liên kết với UserDemo
-        companyRepository.deleteById(id);
+        companyRepository.delete(company);
     }
 
-
-    // Add a user to a company
     @Transactional
-    public void addUserToCompany(Long companyId, UserDemo user) {
-        Company company = getCompanyById(companyId);  // getCompanyById throws if company is not found
-        user.setCompany(company);  // Set the company for the user
-        company.addUser(user);     // Add user to the company's list
-        companyRepository.save(company);  // Save changes in both entities
-    }
-
-    // Remove a user from a company
-    @Transactional
-    public void removeUserFromCompany(Long companyId, Long userId) {
-        Company company = getCompanyById(companyId);  // Ensure the company exists
-        UserDemo user = userRepository.findById(Math.toIntExact(userId))
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        company.removeUser(user);  // Remove user from the company's list
-        user.setCompany(null);     // Unset company for the user
-        companyRepository.save(company);  // Save changes
-        userRepository.save(user);  // Persist changes in user as well
+    public void saveOrUpdate(Company company) {
+        if (company.getUsers() != null) {
+            for (UserDemo user : company.getUsers()) {
+                user.setCompany(company);
+            }
+        }
+        companyRepository.save(company);
     }
 }
