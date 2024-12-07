@@ -1,59 +1,90 @@
-// UserController.java
 package com.example.demo2.controller;
 
+import com.example.demo2.model.Role;
 import com.example.demo2.model.UserDemo;
-import com.example.demo2.model.Company;
+import com.example.demo2.service.RoleService;
 import com.example.demo2.service.UserService;
-import com.example.demo2.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
 @Controller
 public class UserController {
-
-    private final UserService userService;
-    private final CompanyService companyService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    public UserController(UserService userService, CompanyService companyService) {
-        this.userService = userService;
-        this.companyService = companyService;
+    private RoleService roleService;
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
-    // Display the add user form with a list of companies
+    @GetMapping("/")
+    public String home() {
+        return "home";
+    }
+
+
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("user", new UserDemo());
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String registerUser(@ModelAttribute("user") UserDemo user) {
+        userService.createUser(user);
+        return "redirect:/login?success";
+    }
+
     @GetMapping("/addUser")
     public String addUser(Model model) {
         model.addAttribute("user", new UserDemo());
-        List<Company> companies = companyService.getAllCompanies(); // Get all companies
-        model.addAttribute("companies", companies); // Pass the companies to the view
         return "addUser";
     }
 
-    // Save user and redirect to the user list page
     @PostMapping("/addUser")
-    public String saveUser(@ModelAttribute("user") UserDemo user) {
-        userService.saveOrUpdate(user); // Save user to database
-        return "redirect:/userList"; // Redirect to the user list page
+    public String createUser(@ModelAttribute("user") UserDemo user) {
+        userService.createUser(user);
+        return "redirect:/users";
     }
 
-    // Display the list of all users
-    @GetMapping("/userList")
-    public String userList(Model model) {
-        List<UserDemo> users = userService.getAllUsers(); // Fetch all users
+
+
+    @GetMapping("/users")
+    public String getAllUsers(Model model) {
+        List<UserDemo> users = userService.getAllUsers();
         model.addAttribute("users", users);
-        return "userList";
+        return "getAll";
     }
 
-    // Login
-    @GetMapping("/login")
-    public String login() {
-        return "login";  // Trả về tên của trang login (login.html trong thư mục templates)
+    // Xử lý chỉnh sửa người dùng
+    @PostMapping("/update/{id}")
+    public String updateUser(@PathVariable("id") Integer id, @ModelAttribute("user") UserDemo user) {
+        userService.updateUser(id, user);
+        return "redirect:/users";
     }
+
+    // Xóa người dùng
+    @GetMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Integer id) {
+        userService.deleteUser(id);
+        return "redirect:/users";
+    }
+
+    @PostMapping("/addRole")
+    public String createRole(@ModelAttribute("role") Role role) {
+        roleService.addRole(role);
+        return "redirect:/users";
+    }
+
 
 }
