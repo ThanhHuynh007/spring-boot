@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="flex h-screen bg-gray-100">
+
+    <!-- sidebar -->
+    <div class="hidden md:flex flex-col w-64 bg-gray-800">
+        <div class="flex items-center justify-center h-16 bg-gray-900">
+            <span class="text-white font-bold uppercase">Sidebar</span>
+        </div>
+        <div class="flex flex-col flex-1 overflow-y-auto">
+            <nav class="flex-1 px-2 py-4 bg-gray-800">
+                <a href="/users" class="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    User
+                </a>
+                <a href="/companies/all" class="flex items-center px-4 py-2 mt-2 text-gray-100 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Companies
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 mt-2 text-gray-100 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Settings
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="flex flex-col flex-1 overflow-y-auto">
+        <div class="flex items-center justify-between h-16 bg-white border-b border-gray-200">
+            <div class="flex items-center px-4">
+                <button class="text-gray-500 focus:outline-none focus:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <input class="mx-4 w-full border rounded-md px-4 py-2" type="text" placeholder="Search">
+            </div>
+            <div class="flex items-center pr-4">
+
+                <button
+                        class="flex items-center text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700">
+                    <a href="/logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 19l-7-7 7-7m5 14l7-7-7-7" />
+                        </svg>
+                    </a>
+
+                </button>
+            </div>
+        </div>
+        <div class="bg-white p-8 overflow-auto h-screen">
+            <div class="flex space-x-5">
+                <div class="w-1/2">
+                    <h2 class=" text-2xl mb-4 ">Danh sách công ty</h2>
+                </div>
+                <div class="w-1/2 flex justify-end">
+                    <button class="w-[100px] border-2 bg-red-600 text-white rounded-lg mr-10"><a href="/companies/add">Add</a></button>
+                </div>
+            </div>
+
+            <!-- Classes Table -->
+            <div class="relative overflow-auto">
+                <div class="overflow-x-auto rounded-lg">
+                    <table class="min-w-full bg-white border mb-20">
+                        <thead>
+                        <tr class="bg-[#2B4DC994] text-center text-xs md:text-sm font-thin text-white">
+                            <th class="p-0">
+                                <span class="block py-2 px-3 border-r border-gray-300">ID</span>
+                            </th>
+                            <th class="p-0">
+                                <span class="block py-2 px-3 border-r border-gray-300">Name</span>
+                            </th>
+                            <th class="p-4 text-xs md:text-sm">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="border-b text-xs md:text-sm text-center text-gray-800" th:each="company : ${companies}">
+                            <td class="p-2 md:p-4" th:text="${company.id}"></td>
+                            <td class="p-2 md:p-4" th:text="${company.name}"></td>
+                            <td class="relative p-2 md:p-4 flex justify-center space-x-2">
+                                <button class="bg-blue-500 text-white px-3 py-1 rounded-md text-xs md:text-sm"><a th:href="@{'/companies/update/' + ${company.id}}">Edit</a></button>
+                                <button class="bg-red-500 text-white px-3 py-1 rounded-md text-xs md:text-sm"><a th:href="@{'/companies/delete/' + ${company.id}}">Delete</a></button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>
