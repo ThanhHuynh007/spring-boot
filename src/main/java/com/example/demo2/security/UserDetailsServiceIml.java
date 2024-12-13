@@ -45,18 +45,13 @@ public class UserDetailsServiceIml implements UserDetailsService {
 
         System.out.println("Granted Authorities: " + authorities);
 
-        boolean enabled = true;
-        boolean accountNonExpired = true;
-        boolean credentialsNonExpired = true;
-        boolean accountNonLocked = true;
-
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                enabled,
-                accountNonExpired,
-                credentialsNonExpired,
-                accountNonLocked,
+                true,
+                true,
+                true,
+                true,
                 authorities
         );
     }

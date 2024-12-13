@@ -2,8 +2,10 @@ package com.example.demo2.restAPI;
 
 import com.example.demo2.dto.Convert;
 import com.example.demo2.dto.UserDTO;
+import com.example.demo2.model.Authen;
 import com.example.demo2.model.UserDemo;
 import com.example.demo2.repository.UserRepository;
+import com.example.demo2.security.AuthenticationService;
 import com.example.demo2.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class RestUser {
     @Autowired
     private Convert convert;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
     //GET ALL USER
     @GetMapping("/admin/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -43,7 +48,6 @@ public class RestUser {
             List<UserDTO> userDTOs = users.stream()
                     .map(convert::convertUserToDTO)
                     .collect(Collectors.toList());
-
             return ResponseEntity.ok(userDTOs);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -71,14 +75,21 @@ public class RestUser {
 
     //REGISTER
     @PostMapping("/register")
-    public ResponseEntity<UserDemo> register(@RequestBody UserDemo request){
-        return ResponseEntity.ok(userService.createUser(request));
+    public ResponseEntity<Authen> register(@RequestBody UserDemo request){
+        return ResponseEntity.ok(authenticationService.register(request));
+    }
+
+    //LOGIN
+    @PostMapping("/login")
+    public ResponseEntity<Authen> login(@RequestBody UserDemo request){
+        return ResponseEntity.ok(authenticationService.login(request));
     }
 
     //UPDATE USER
     @PostMapping("/admin/update/{id}")
-    public ResponseEntity<?> updateUser(@RequestBody UserDemo user, @PathVariable int id){
-        return new ResponseEntity<UserDemo>(userService.updateUser(id, user), HttpStatus.OK);
+    public ResponseEntity<String> updateUser(@RequestBody UserDemo user, @PathVariable int id) {
+        userService.updateUser(id, user);
+        return new ResponseEntity<>("Update Successfully", HttpStatus.OK);
     }
 
     //DELETE USER
