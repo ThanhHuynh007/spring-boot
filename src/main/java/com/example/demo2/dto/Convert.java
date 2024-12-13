@@ -1,6 +1,5 @@
 package com.example.demo2.dto;
 
-
 import com.example.demo2.model.Company;
 import com.example.demo2.model.UserDemo;
 import com.example.demo2.repository.UserRepository;

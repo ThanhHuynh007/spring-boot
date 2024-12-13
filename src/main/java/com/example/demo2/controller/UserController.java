@@ -57,8 +57,6 @@ public class UserController {
         return "redirect:/users";
     }
 
-
-
     @GetMapping("/users")
     public String getAllUsers(Model model) {
         List<UserDemo> users = userService.getAllUsers();

@@ -20,6 +20,6 @@ public class Company {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "company", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = false)
+    @OneToMany(mappedBy = "company", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     private List<UserDemo> users = new ArrayList<>();
 }
