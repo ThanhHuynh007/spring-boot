@@ -1,17 +1,23 @@
 package com.example.demo2.restAPI;
 
+import com.example.demo2.dto.AuthRequest;
 import com.example.demo2.dto.Convert;
 import com.example.demo2.dto.UserDTO;
 import com.example.demo2.model.Authen;
 import com.example.demo2.model.UserDemo;
 import com.example.demo2.repository.UserRepository;
 import com.example.demo2.security.AuthenticationService;
+import com.example.demo2.security.JwtService;
 import com.example.demo2.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -39,6 +45,12 @@ public class RestUser {
 
     @Autowired
     private AuthenticationService authenticationService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtService jwtService;
 
     //GET ALL USER
     @GetMapping("/admin/users")
@@ -81,9 +93,24 @@ public class RestUser {
 
     //LOGIN
     @PostMapping("/login")
-    public ResponseEntity<Authen> login(@RequestBody UserDemo request){
+    public ResponseEntity<Authen> login(@RequestBody AuthRequest request){
         return ResponseEntity.ok(authenticationService.login(request));
     }
+
+//    @PostMapping("/generateToken")
+//    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+//        Authentication authentication =
+//                authenticationManager
+//                        .authenticate(new UsernamePasswordAuthenticationToken(
+//                                authRequest.getEmail(),
+//                                authRequest.getPassword()));
+//
+//        if (authentication.isAuthenticated()) {
+//            return jwtService.generateToken(authRequest.getEmail());
+//        } else {
+//            throw new UsernameNotFoundException("Invalid user request!");
+//        }
+//    }
 
     //UPDATE USER
     @PostMapping("/admin/update/{id}")

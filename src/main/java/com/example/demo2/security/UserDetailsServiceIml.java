@@ -40,7 +40,7 @@ public class UserDetailsServiceIml implements UserDetailsService {
         }
 
         List<GrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName())) // Nếu "ROLE_" đã có trong DB, không cần thêm nữa
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
         System.out.println("Granted Authorities: " + authorities);
