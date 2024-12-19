@@ -44,9 +44,8 @@ public class AuthenticationService {
                     return roleRepository.save(newRole);
                 });
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(userRole);
-        user.setRoles(roles);
+        // Thiết lập vai trò cho user
+        user.setRole(userRole);
 
         // Lưu user vào cơ sở dữ liệu
         user = repository.save(user);
@@ -55,6 +54,7 @@ public class AuthenticationService {
         String token = jwtService.generateToken(user.getEmail());
         return new Authen(token);
     }
+
 
     public Authen login(AuthRequest request) {
         authenticationManager.authenticate(

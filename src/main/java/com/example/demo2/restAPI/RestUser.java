@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -97,20 +94,6 @@ public class RestUser {
         return ResponseEntity.ok(authenticationService.login(request));
     }
 
-//    @PostMapping("/generateToken")
-//    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-//        Authentication authentication =
-//                authenticationManager
-//                        .authenticate(new UsernamePasswordAuthenticationToken(
-//                                authRequest.getEmail(),
-//                                authRequest.getPassword()));
-//
-//        if (authentication.isAuthenticated()) {
-//            return jwtService.generateToken(authRequest.getEmail());
-//        } else {
-//            throw new UsernameNotFoundException("Invalid user request!");
-//        }
-//    }
 
     //UPDATE USER
     @PostMapping("/admin/update/{id}")
