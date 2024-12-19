@@ -14,4 +14,17 @@ public class RoleService {
 
         return roleRepository.save(role);
     }
+
+    public void createRoleIfNotExists(String roleName) {
+        if (roleRepository.findByName(roleName).isEmpty()) {
+            Role role = new Role();
+            role.setName(roleName);
+            roleRepository.save(role);
+        }
+    }
+
+    public void initializeDefaultRoles() {
+        createRoleIfNotExists("ROLE_ADMIN");
+        createRoleIfNotExists("ROLE_USER");
+    }
 }
