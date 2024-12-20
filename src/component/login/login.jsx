@@ -1,15 +1,18 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import LoginCSS from "./login.module.css";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import api from "../../config/config"; // Import API module
 
 export default function Login() {
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [isActive, setIsActive] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(""); // State to hold error messages
 
     const navigate = useNavigate(); // Initialize useNavigate
+    let refreshInterval = null; // Store interval ID for token refresh
 
     const handleRegisterClick = () => {
         setIsActive(true);
@@ -19,39 +22,103 @@ export default function Login() {
         setIsActive(false);
     };
 
-    const handleLogin = async (e) => {
-        e.preventDefault(); // Prevent form from refreshing the page
+    const handleRegister = async (e) => {
+        e.preventDefault();
         try {
-            // Call login function from the API module
-            const data = await api.login(email, password);
+            const data = await api.register(firstName, lastName, email, password);
 
-            if (data && data.access_token) {
-                // Lưu token vào localStorage
-                localStorage.setItem("access_token", data.access_token);
-
-                // Redirect to the home page after successful login
-                navigate("/home"); // Chuyển hướng đến trang home
+            if (data.access_token) {
+                window.localStorage.setItem("persist:auth", JSON.stringify({ token: data.access_token }));
+                window.localStorage.setItem("email", email);
+                window.localStorage.setItem("password", password);
+                // startTokenRefresh();
+                navigate("/home");
             } else {
-                throw new Error("Token is missing");
+                setError("No token received. Please try again.");
             }
-        } catch (error) {
-            setError("Invalid email or password"); // Display error message
+        } catch (err) {
+            setError("Failed to register. Please try again.");
+            console.error("Registration error:", err);
         }
     };
 
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const data = await api.login(email, password);
+
+            if (data && data.token) {  // Kiểm tra kỹ xem có `token` trong phản hồi không
+                window.localStorage.setItem("persist:auth", JSON.stringify({ token: data.token }));
+                window.localStorage.setItem("email", email);
+                window.localStorage.setItem("password", password);
+
+                // Đảm bảo rằng token đã được lưu trước khi chuyển hướng
+                console.log("Token saved:", data.token);  // Kiểm tra token
+
+                // startTokenRefresh();
+
+                // Chuyển hướng đến trang home sau khi đã lưu token
+                navigate("/home");
+            } else {
+                setError("Invalid login response. Please try again.");
+                console.error("Login response:", data);  // In phản hồi để kiểm tra
+            }
+        } catch (err) {
+            setError("Invalid email or password.");
+            console.error("Login error:", err);  // In lỗi chi tiết để kiểm tra
+        }
+    };
+
+
+
+
+
+    // const startTokenRefresh = () => {
+    //     // Nếu đã có interval, hủy nó trước khi bắt đầu mới
+    //     if (refreshInterval) {
+    //         clearInterval(refreshInterval);
+    //     }
+
+    //     refreshInterval = setInterval(async () => {
+    //         const email = window.localStorage.getItem("email");
+    //         const password = window.localStorage.getItem("password");
+
+    //         if (email && password) {
+    //             try {
+    //                 const data = await api.login(email, password);
+    //                 if (data && data.access_token) {
+    //                     window.localStorage.setItem("persist:auth", JSON.stringify({ token: data.access_token }));
+    //                     console.log("Token has been refreshed successfully.");
+    //                 }
+    //             } catch (error) {
+    //                 console.error("Failed to refresh token:", error);
+    //             }
+    //         }
+    //     }, 1680000); // 28 minutes in milliseconds
+    // };
+
+    // Cleanup function to clear interval on component unmount
+    React.useEffect(() => {
+        return () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        };
+    }, []);
 
     return (
         <div className={`${LoginCSS["centered-wrapper"]}`}>
             <div className={`${LoginCSS.container} ${isActive ? LoginCSS.active : ""}`} id="container">
                 {/* Sign-up Form */}
                 <div className={`${LoginCSS["form-container"]} ${LoginCSS["sign-up"]}`}>
-                    <form>
+                    <form onSubmit={handleRegister}>
                         <h1>Create Account</h1>
                         <span>or use your email for registration</span>
-                        <input type="text" placeholder="Name" />
-                        <input type="email" placeholder="Email" />
-                        <input type="password" placeholder="Password" />
-                        <button type="button">Sign Up</button>
+                        <input type="text" value={firstName} placeholder="First Name" onChange={(e) => setFirstName(e.target.value)} />
+                        <input type="text" value={lastName} placeholder="Last Name" onChange={(e) => setLastName(e.target.value)} />
+                        <input type="email" value={email} placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+                        <input type="password" value={password} placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+                        <button type="submit">Sign Up</button>
                     </form>
                 </div>
 

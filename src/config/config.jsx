@@ -1,110 +1,86 @@
-const BASE_URL = "http://localhost:8080/api";
+const instance = {
+    baseURL: "http://localhost:8080/api",
 
-// Lấy token từ localStorage
-const getAccessToken = () => localStorage.getItem("access_token");
-const getEmail = () => localStorage.getItem("email");
-const getPassword = () => localStorage.getItem("password");
+    async request(url, options = {}) {
+        const token = window.localStorage.getItem("persist:auth")
+            ? JSON.parse(window.localStorage.getItem("persist:auth")).token
+            : null;
 
-// Lưu trữ token và thông tin người dùng vào localStorage
-const setTokens = (accessToken, email, password) => {
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("email", email);
-    localStorage.setItem("password", password);
-};
-
-// Xóa token khi đăng xuất
-const clearTokens = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
-};
-
-// Tạo hàm để gửi request với Bearer token
-const fetchWithAuth = async (url, options = {}) => {
-    const accessToken = getAccessToken();
-    const headers = {
-        "Content-Type": "application/json",
-        ...options.headers,
-    };
-
-    if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    const response = await fetch(url, {
-        ...options,
-        headers,
-    });
-
-    return response;
-};
-
-// Xử lý phản hồi (response) và tự động làm mới token nếu hết hạn
-const handleResponse = async (response, originalRequest) => {
-    if (response.status === 401) {
-        // Token expired, try to refresh the access token
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-            // Retry original request with the new access token
-            return fetchWithAuth(originalRequest.url, originalRequest);
-        } else {
-            clearTokens(); // Xóa token khi refresh thất bại
-            window.location.href = "/login"; // Điều hướng đến trang đăng nhập
+        if (token) {
+            console.log("Sending request with token:", token); // Debug token
+            options.headers = {
+                ...options.headers,
+                authorization: `Bearer ${token}`,
+            };
         }
-    }
 
-    return response;
-};
+        try {
+            const response = await fetch(`${this.baseURL}${url}`, options);
 
-// Làm mới token
-const refreshAccessToken = async () => {
-    const email = getEmail();
-    const password = getPassword();
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'An error occurred');
+            }
 
-    if (!email || !password) {
-        return false; // Return false if no email or password is available
-    }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Request error:", error);
+            return { error: error.message };
+        }
+    },
 
-    try {
-        // Đăng nhập lại với email và password để lấy access token mới
-        const response = await login(email, password);
-        return response ? true : false;
-    } catch (error) {
-        console.error("Token refresh failed:", error);
-        return false;
-    }
-};
+    async get(url, options = {}) {
+        return this.request(url, { ...options, method: 'GET' });
+    },
 
-// Đăng nhập
-const login = async (email, password) => {
-    try {
-        const response = await fetch(`${BASE_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
+    async post(url, body, options = {}) {
+        return this.request(url, {
+            ...options,
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                ...options.headers,
+                'Content-Type': 'application/json',
+            },
         });
+    },
 
-        if (!response.ok) {
-            throw new Error("Login failed");
+    async login(email, password) {
+        try {
+            const data = await this.post("/login", { email, password });
+            if (data && data.access_token) {
+                window.localStorage.setItem("persist:auth", JSON.stringify({ token: data.access_token }));
+            }
+            return data;
+        } catch (error) {
+            console.error("Lỗi đăng nhập:", error);
+            return { error: error.message };
         }
+    },
 
-        const { access_token } = await response.json();
-        setTokens(access_token, email, password); // Lưu token và thông tin người dùng
-        return { access_token };
-    } catch (error) {
-        console.error("Login failed:", error);
-        throw error;
+    async register(firstName, lastName, email, password) {
+        try {
+            const data = await this.post("/register", { firstName, lastName, email, password });
+            if (data && data.access_token) {
+                window.localStorage.setItem("persist:auth", JSON.stringify({ token: data.access_token }));
+            }
+            return data;
+        } catch (error) {
+            console.error("Lỗi đăng ký:", error);
+            return { error: error.message };
+        }
+    },
+
+    async getUser() {
+        try {
+            const data = await this.get("/admin/users");
+            return data;
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            return { error: error.message };
+        }
     }
 };
 
-// Đăng xuất
-const logout = () => {
-    clearTokens();
-    window.location.href = "/login"; // Điều hướng tới trang đăng nhập
-};
-
-export default {
-    fetchWithAuth,
-    login,
-    logout,
-};
+export default instance;
