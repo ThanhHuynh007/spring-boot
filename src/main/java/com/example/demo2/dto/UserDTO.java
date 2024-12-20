@@ -15,11 +15,14 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String companyName;
+    private String roleName;  // Changed roleId to roleName
 
-    public UserDTO(Integer id, String email, String firstName, String lastName) {
+    // Constructor with roleName
+    public UserDTO(Integer id, String email, String firstName, String lastName, String roleName) {
         this.id = id;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.roleName = roleName;  // Assign roleName instead of roleId
     }
 }

@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api")
+@CrossOrigin("*")
 public class RestUser {
 
     @Autowired
