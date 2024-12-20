@@ -145,6 +145,20 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+    border: 1px solid var(--black2);
+}
+
+.details table th, 
+.details table td {
+    border: 1px solid var(--black2); /* Viền giữa các ô */
+    padding: 10px; /* Khoảng cách giữa nội dung và viền */
+    text-align: left; /* Căn chỉnh nội dung sang trái */
+}
+
+.details table thead th {
+    background-color: var(--blue); /* Màu nền cho tiêu đề bảng */
+    color: var(--white); /* Màu chữ cho tiêu đề */
+    font-weight: bold; /* Đậm chữ cho tiêu đề */
 }
 
 .details table thead td {
@@ -179,6 +193,27 @@
 
 .details table tr td:nth-child(3) {
     text-align: center;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.addUserBtn {
+    padding: 8px 16px;
+    background-color: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.addUserBtn:hover {
+    background-color: #1e1c72;
 }
 
 .status.delivered {

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './component/login/login';
 import Home from './component/home/home';
 import Sidebar from './component/sidebar/sidebar';
+import Company from './component/company/Company';
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
               <div style={{ marginLeft: '300px', width: '100%' }}>
                 <Routes>
                   <Route path="/home" element={<Home />} />
-                  {/* Add other routes here */}
+                  <Route path="/company" element={<Company />} />
                 </Routes>
               </div>
             </div>

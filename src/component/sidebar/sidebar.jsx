@@ -52,7 +52,7 @@ const Sidebar = () => {
                         onMouseOver={() => handleHover(2)}
                         onMouseOut={() => setHoveredIndex(null)}
                     >
-                        <Link to="#">
+                        <Link to="/company">
                             <span className={SidebarCSS.icon}>
                                 <ion-icon name="business-outline"></ion-icon>
                             </span>

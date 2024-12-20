@@ -28,6 +28,9 @@ const Home = () => {
                     <div className={HomeCSS.recentOrders}>
                         <div className={HomeCSS.cardHeader}>
                             <h2>User List</h2>
+                            <button className={HomeCSS.addUserBtn} onClick={() => alert('Add User clicked!')}>
+                                Add User
+                            </button>
                         </div>
 
                         <table>

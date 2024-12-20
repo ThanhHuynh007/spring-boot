@@ -1,0 +1,142 @@
+/* company.module.css */
+
+/* Main Content Styles */
+.main {
+    position: absolute;
+    width: calc(100% - 300px);
+    left: 300px;
+    min-height: 100vh;
+    background: var(--white);
+    transition: 0.5s;
+}
+
+.main.active {
+    width: calc(100% - 80px);
+    left: 80px;
+}
+
+.topbar {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.search {
+    position: relative;
+    width: 400px;
+    margin: 0 10px;
+}
+
+.search label {
+    position: relative;
+    width: 100%;
+}
+
+.search label input {
+    width: 100%;
+    height: 40px;
+    border-radius: 40px;
+    padding: 5px 20px;
+    padding-left: 35px;
+    font-size: 18px;
+    outline: none;
+    border: 1px solid var(--black2);
+}
+
+.search label ion-icon {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    font-size: 1.2rem;
+}
+
+/* Company List Details */
+.details {
+    position: relative;
+    width: 100%;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 30px;
+}
+
+.details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    border: 1px solid var(--black2);
+}
+
+.details table th,
+.details table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid var(--black2); /* Adds cell borders */
+}
+
+.details table thead th {
+    background-color: var(--blue);
+    color: var(--white);
+    font-weight: bold;
+}
+
+.details table tbody tr {
+    color: var(--black1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.details table tbody tr:hover {
+    background: var(--blue);
+    color: var(--white);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.addCompanyBtn {
+    padding: 8px 16px;
+    background-color: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.addCompanyBtn:hover {
+    background-color: #1e1c72;
+}
+
+.editBtn {
+    padding: 5px 10px;
+    background-color: #ffa500;
+    color: var(--white);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.editBtn:hover {
+    background-color: #cc8400;
+}
+
+.deleteBtn {
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    color: var(--white);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.deleteBtn:hover {
+    background-color: #cc0000;
+}
