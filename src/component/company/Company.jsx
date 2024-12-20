@@ -1,23 +1,49 @@
 // import Sidebar from './Sidebar';
 import CompanyCSS from './company.module.css';
+import { useState } from 'react';
+import AddCompanyModal from './AddCompanyModal';
 
 // Sample company data
-const companies = [
-    { id: 1, name: 'TechCorp', address: '123 Tech Street', password: 'pass123', action: '' },
-    { id: 2, name: 'InnoTech', address: '456 Innovation Blvd', password: 'inno456', action: '' },
-    { id: 3, name: 'Globex', address: '789 Global Ave', password: 'globe789', action: '' },
-    { id: 4, name: 'SoftWareX', address: '321 Software Rd', password: 'soft321', action: '' },
+const companiesData = [
+    { id: 1, name: 'TechCorp', address: '123 Tech Street', password: 'pass123' },
+    { id: 2, name: 'InnoTech', address: '456 Innovation Blvd', password: 'inno456' },
+    { id: 3, name: 'Globex', address: '789 Global Ave', password: 'globe789' },
+    { id: 4, name: 'SoftWareX', address: '321 Software Rd', password: 'soft321' },
 ];
 
 const Company = () => {
-    const handleEdit = (id) => {
-        alert(`Edit company with ID: ${id}`);
+    const [companies, setCompanies] = useState(companiesData);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentCompany, setCurrentCompany] = useState(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+    const handleAddCompany = (newCompany) => {
+        setCompanies([...companies, { ...newCompany, id: Date.now() }]);
+    };
+
+    const handleEdit = (company) => {
+        setCurrentCompany(company);
+        setIsModalOpen(true);
     };
 
     const handleDelete = (id) => {
         if (window.confirm(`Are you sure you want to delete company with ID: ${id}?`)) {
-            alert(`Company with ID: ${id} deleted.`);
+            setCompanies(companies.filter((company) => company.id !== id));
         }
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setCurrentCompany(null);
+    };
+
+    const handleSave = () => {
+        setCompanies(
+            companies.map((company) =>
+                company.id === currentCompany.id ? currentCompany : company
+            )
+        );
+        handleModalClose();
     };
 
     return (
@@ -39,7 +65,7 @@ const Company = () => {
                             <h2>Company List</h2>
                             <button
                                 className={CompanyCSS.addCompanyBtn}
-                                onClick={() => alert('Add Company clicked!')}
+                                onClick={() => setIsAddModalOpen(true)}
                             >
                                 Add Company
                             </button>
@@ -65,7 +91,7 @@ const Company = () => {
                                         <td>
                                             <button
                                                 className={CompanyCSS.editBtn}
-                                                onClick={() => handleEdit(company.id)}
+                                                onClick={() => handleEdit(company)}
                                             >
                                                 Edit
                                             </button>
@@ -82,6 +108,56 @@ const Company = () => {
                         </table>
                     </div>
                 </div>
+
+                {isAddModalOpen && (
+                    <AddCompanyModal
+                        onAdd={handleAddCompany}
+                        onClose={() => setIsAddModalOpen(false)}
+                    />
+                )}
+
+                {/* Edit Modal */}
+                {isModalOpen && (
+                    <div className={CompanyCSS.modal}>
+                        <div className={CompanyCSS.modalContent}>
+                            <h2>Edit Company</h2>
+                            <label>
+                                Name:
+                                <input
+                                    type="text"
+                                    value={currentCompany.name}
+                                    onChange={(e) =>
+                                        setCurrentCompany({ ...currentCompany, name: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Address:
+                                <input
+                                    type="text"
+                                    value={currentCompany.address}
+                                    onChange={(e) =>
+                                        setCurrentCompany({ ...currentCompany, address: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Password:
+                                <input
+                                    type="text"
+                                    value={currentCompany.password}
+                                    onChange={(e) =>
+                                        setCurrentCompany({ ...currentCompany, password: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <div className={CompanyCSS.modalActions}>
+                                <button onClick={handleSave}>Save</button>
+                                <button onClick={handleModalClose}>Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
