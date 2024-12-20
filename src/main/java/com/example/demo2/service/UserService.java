@@ -96,7 +96,9 @@ public class UserService {
             updatedUser.setEmail(userDetails.getEmail());
             updatedUser.setFirstName(userDetails.getFirstName());
             updatedUser.setLastName(userDetails.getLastName());
-            updatedUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+            if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                updatedUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+            }
 
             return userRepository.save(updatedUser);
         }

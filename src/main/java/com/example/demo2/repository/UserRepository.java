@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserDemo, Integer> {
     Optional<UserDemo> findByEmail(String email);
+
     @Modifying
-    @Query(value = "DELETE FROM USER_ROLE WHERE user_id = :userId", nativeQuery = true)
+    @Query("DELETE FROM UserDemo u WHERE u.id = :userId")
     void deleteByUserId(@Param("userId") int userId);
 }
-
