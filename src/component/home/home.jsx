@@ -1,18 +1,47 @@
-// import Sidebar from './Sidebar';
+import { useState, useEffect } from 'react';
 import HomeCSS from './home.module.css';
-
-// Sample user data with id, first_name, last_name, role, and company
-const users = [
-    { id: 1, first_name: 'David', last_name: 'Smith', role: 'Admin', company: 'TechCorp', image: 'assets/imgs/customer02.jpg' },
-    { id: 2, first_name: 'Amit', last_name: 'Sharma', role: 'User', company: 'InnoTech', image: 'assets/imgs/customer01.jpg' },
-    { id: 3, first_name: 'John', last_name: 'Doe', role: 'Manager', company: 'Globex', image: 'assets/imgs/customer01.jpg' },
-    { id: 4, first_name: 'Sophia', last_name: 'Johnson', role: 'Developer', company: 'SoftWareX', image: 'assets/imgs/customer02.jpg' },
-];
+import instance from '../../config/config';
 
 const Home = () => {
+    const [users, setUsers] = useState([]); // Sử dụng state để lưu trữ danh sách người dùng
+    const [error, setError] = useState(""); // Lưu lỗi nếu có
+
+    const fetchUsers = async () => {
+        try {
+            const response = await instance.getUser();  // Lấy dữ liệu người dùng
+
+            // Log phản hồi để kiểm tra dữ liệu trả về
+            console.log("Full response:", response);
+
+            // Kiểm tra xem phản hồi có phải là một mảng không
+            if (Array.isArray(response)) {
+                console.log("Fetched users:", response); // Log danh sách người dùng
+
+                // Cập nhật state với dữ liệu người dùng
+                setUsers(response);
+            } else {
+                throw new Error("Invalid data format received.");
+            }
+        } catch (error) {
+            setError("Failed to fetch users");
+            console.error('Request failed', error);
+        }
+    };
+
+
+
+    // Sử dụng useEffect để gọi fetchUsers khi component mount
+    useEffect(() => {
+        fetchUsers();
+    }, []);  // Chỉ gọi 1 lần khi component được render lần đầu
+
+    // Nếu có lỗi, hiển thị lỗi
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
     return (
         <div className={HomeCSS.wrapper}>
-
             <div className={HomeCSS.main}>
                 <div className={HomeCSS.topbar}>
                     <div className={HomeCSS.search}>
@@ -41,15 +70,21 @@ const Home = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map((user) => (
-                                    <tr key={user.id}>
-                                        <td>{user.id}</td>
-                                        <td>{user.first_name}</td>
-                                        <td>{user.last_name}</td>
-                                        <td>{user.role}</td>
-                                        <td>{user.company}</td>
+                                {users.length > 0 ? (
+                                    users.map((user) => (
+                                        <tr key={user.id}>
+                                            <td>{user.id}</td>
+                                            <td>{user.firstName}</td>
+                                            <td>{user.lastName}</td>
+                                            <td>{user.roleName}</td>
+                                            <td>{user.company}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5">No users found</td> {/* Hiển thị thông báo nếu không có người dùng */}
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
