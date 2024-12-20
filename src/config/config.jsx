@@ -86,6 +86,26 @@ const instance = {
         }
     },
 
+    async getUserDetail(userId) {
+        try {
+            const data = await this.get(`/admin/user/${userId}`);
+            return data;
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            return { error: error.message };
+        }
+    },
+
+    async getCompany() {
+        try {
+            const data = await this.get("/admin/companies");
+            return data;
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            return { error: error.message };
+        }
+    },
+
     async deleteUser(userId) {
         try {
             const data = await this.delete(`/admin/delete/${userId}`);
@@ -96,6 +116,67 @@ const instance = {
             return { error: error.message };
         }
     },
+
+    async updateUser(firstName, lastName, email, password, userId) {
+        try {
+            const data = await this.post(`/admin/update/${userId}`, { firstName, lastName, email, password });
+            return data;
+        } catch (error) {
+            console.error("Lỗi cập nhật:", error);
+            return { error: error.message };
+        }
+    },
+
+    async addCompany(name, userEmails) {
+        try {
+            // Kiểm tra userEmails có phải là mảng không
+            if (!Array.isArray(userEmails)) {
+                throw new Error("userEmails phải là mảng");
+            }
+
+            // Gửi yêu cầu POST đến API với mảng userEmails
+            const data = await this.post("/admin/company/add", { name, userEmails });
+
+
+            return data;
+        } catch (error) {
+            console.error("Lỗi khi thêm công ty:", error);
+            return { error: error.message };
+        }
+    },
+
+    async updateCompany(name, userEmails, companyId) {
+        try {
+
+            // Kiểm tra userEmails có phải là mảng không
+            if (!Array.isArray(userEmails)) {
+                throw new Error("userEmails phải là mảng");
+            }
+
+            // Gửi yêu cầu POST đến API với mảng userEmails
+            const data = await this.post(`/admin/company/edit/${companyId}`, { name, userEmails });
+
+
+            return data;
+        } catch (error) {
+            console.error("Lỗi khi thêm công ty:", error);
+            return { error: error.message };
+        }
+    },
+
+    async deleteCompany(companyId) {
+        try {
+            const data = await this.delete(`/admin/company/delete/${companyId}`);
+            console.log("User deleted successfully:", data);
+            return data;
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            return { error: error.message };
+        }
+    }
+
+
+
 };
 
 export default instance;
