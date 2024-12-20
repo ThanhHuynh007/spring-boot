@@ -102,14 +102,12 @@ public class RestUser {
         return new ResponseEntity<>("Update Successfully", HttpStatus.OK);
     }
 
-    //DELETE USER
     @DeleteMapping("/admin/delete/{id}")
     @Transactional
     public String deleteUser(@PathVariable int id) throws IOException {
         Optional<UserDemo> user = userRepository.findById(id);
         if (user.isPresent()) {
             userRepository.deleteByUserId(id);
-            userRepository.deleteById(id);
             return "Delete Successfully";
         } else {
             return "User not found";

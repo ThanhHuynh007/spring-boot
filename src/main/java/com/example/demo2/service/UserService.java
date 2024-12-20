@@ -1,5 +1,6 @@
 package com.example.demo2.service;
 
+import com.example.demo2.model.Company;
 import com.example.demo2.model.Role;
 import com.example.demo2.model.UserDemo;
 import com.example.demo2.repository.CompanyRepository;
@@ -96,13 +97,19 @@ public class UserService {
             updatedUser.setEmail(userDetails.getEmail());
             updatedUser.setFirstName(userDetails.getFirstName());
             updatedUser.setLastName(userDetails.getLastName());
-            updatedUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
 
+            // Nếu có password, cập nhật password
+            if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                updatedUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+            }
+
+            // Lưu lại người dùng đã cập nhật
             return userRepository.save(updatedUser);
         }
 
-        return null;
+        return null;  // Nếu không tìm thấy người dùng, trả về null
     }
+
 
     public boolean deleteUser(Integer id) {
         if (userRepository.existsById(id)) {
