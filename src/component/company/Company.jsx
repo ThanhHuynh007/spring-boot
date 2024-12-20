@@ -1,34 +1,47 @@
-// import Sidebar from './Sidebar';
 import CompanyCSS from './company.module.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AddCompanyModal from './AddCompanyModal';
-
-// Sample company data
-const companiesData = [
-    { id: 1, name: 'TechCorp', address: '123 Tech Street', password: 'pass123' },
-    { id: 2, name: 'InnoTech', address: '456 Innovation Blvd', password: 'inno456' },
-    { id: 3, name: 'Globex', address: '789 Global Ave', password: 'globe789' },
-    { id: 4, name: 'SoftWareX', address: '321 Software Rd', password: 'soft321' },
-];
+import instance from '../../config/config';
 
 const Company = () => {
-    const [companies, setCompanies] = useState(companiesData);
+    const [companies, setCompanies] = useState([]); // Initialize with an empty array
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentCompany, setCurrentCompany] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [error, setError] = useState("");
+
+    // Fetch company data when component mounts
+    const fetchCompanies = async () => {
+        try {
+            const data = await instance.getCompany();
+            // If data is an array, set companies state, otherwise handle error
+            if (Array.isArray(data)) {
+                setCompanies(data);
+            } else {
+                throw new Error("Invalid data format received.");
+            }
+        } catch (error) {
+            setError("Failed to fetch companies");
+            console.error('Request failed', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCompanies(); // Call fetchCompanies on mount
+    }, []); // Empty array ensures this effect runs only once on mount
 
     const handleAddCompany = (newCompany) => {
-        setCompanies([...companies, { ...newCompany, id: Date.now() }]);
+        setCompanies([...companies, { ...newCompany, id: Date.now() }]); // Add a new company
     };
 
     const handleEdit = (company) => {
-        setCurrentCompany(company);
-        setIsModalOpen(true);
+        setCurrentCompany(company); // Set current company for editing
+        setIsModalOpen(true); // Open modal
     };
 
     const handleDelete = (id) => {
         if (window.confirm(`Are you sure you want to delete company with ID: ${id}?`)) {
-            setCompanies(companies.filter((company) => company.id !== id));
+            setCompanies(companies.filter((company) => company.id !== id)); // Delete company by ID
         }
     };
 
@@ -71,6 +84,7 @@ const Company = () => {
                             </button>
                         </div>
 
+                        {/* Render Table */}
                         <table>
                             <thead>
                                 <tr>
@@ -82,30 +96,44 @@ const Company = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {companies.map((company) => (
-                                    <tr key={company.id}>
-                                        <td>{company.id}</td>
-                                        <td>{company.name}</td>
-                                        <td>{company.address}</td>
-                                        <td>{company.password}</td>
-                                        <td>
-                                            <button
-                                                className={CompanyCSS.editBtn}
-                                                onClick={() => handleEdit(company)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className={CompanyCSS.deleteBtn}
-                                                onClick={() => handleDelete(company.id)}
-                                            >
-                                                Delete
-                                            </button>
+                                {companies.length > 0 ? (
+                                    companies.map((company) => (
+                                        <tr key={company.id}>
+                                            <td>{company.id}</td>
+                                            <td>{company.name}</td>
+                                            <td>{company.address}</td>
+                                            <td>{company.password}</td>
+                                            <td>
+                                                <button
+                                                    className={CompanyCSS.editBtn}
+                                                    onClick={() => handleEdit(company)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className={CompanyCSS.deleteBtn}
+                                                    onClick={() => handleDelete(company.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" style={{ textAlign: 'center' }}>
+                                            No companies available.
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
+
+                        {error && (
+                            <div style={{ color: 'red', textAlign: 'center' }}>
+                                {error}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -117,7 +145,7 @@ const Company = () => {
                 )}
 
                 {/* Edit Modal */}
-                {isModalOpen && (
+                {isModalOpen && currentCompany && (
                     <div className={CompanyCSS.modal}>
                         <div className={CompanyCSS.modalContent}>
                             <h2>Edit Company</h2>

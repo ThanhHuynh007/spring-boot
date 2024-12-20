@@ -1,26 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CompanyCSS from './company.module.css';
+import instance from '../../config/config'; // Assuming this is where your getUser function is defined
 
 const AddCompanyModal = ({ onAdd, onClose }) => {
     const [newCompany, setNewCompany] = useState({
         name: '',
-        address: '',
-        password: '',
+        userEmails: [], // Store selected user emails here
     });
+    const [users, setUsers] = useState([]);
+    const [error, setError] = useState('');
+
+    // Fetch user data when modal opens
+    const fetchUserEmails = async () => {
+        try {
+            const users = await instance.getUser();
+            if (Array.isArray(users)) {
+                setUsers(users); // Store users data
+            } else {
+                throw new Error("Failed to fetch users");
+            }
+        } catch (error) {
+            setError("Failed to fetch user emails");
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserEmails(); // Fetch user emails when modal opens
+    }, []);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setNewCompany({ ...newCompany, [name]: value });
+        const { value, checked } = e.target;
+
+        // If checkbox is checked, add the email to userEmails, otherwise remove it
+        setNewCompany(prevState => {
+            const userEmails = checked
+                ? [...prevState.userEmails, value] // Add email if checked
+                : prevState.userEmails.filter(email => email !== value); // Remove email if unchecked
+            return { ...prevState, userEmails };
+        });
     };
 
     const handleSubmit = () => {
-        if (!newCompany.name || !newCompany.address || !newCompany.password) {
-            alert('Please fill in all fields.');
+        if (!newCompany.name || newCompany.userEmails.length === 0) {
+            alert('Please fill in all fields and select at least one user email.');
             return;
         }
-        onAdd(newCompany);
-        onClose();
+        onAdd(newCompany); // Pass the new company data to onAdd
+        onClose(); // Close the modal
     };
+
+    if (error) {
+        return <div>Error: {error}</div>; // Display error if fetching users failed
+    }
 
     return (
         <div className={CompanyCSS.modal}>
@@ -32,27 +64,32 @@ const AddCompanyModal = ({ onAdd, onClose }) => {
                         type="text"
                         name="name"
                         value={newCompany.name}
-                        onChange={handleChange}
+                        onChange={(e) =>
+                            setNewCompany({ ...newCompany, name: e.target.value })
+                        }
                     />
                 </label>
-                <label>
-                    Address:
-                    <input
-                        type="text"
-                        name="address"
-                        value={newCompany.address}
-                        onChange={handleChange}
-                    />
-                </label>
-                <label>
-                    Password:
-                    <input
-                        type="text"
-                        name="password"
-                        value={newCompany.password}
-                        onChange={handleChange}
-                    />
-                </label>
+
+                <div className={CompanyCSS.emailList}>
+                    <h3>Select User Emails</h3>
+                    {users.length > 0 ? (
+                        <div className={CompanyCSS.checkboxList}>
+                            {users.map((user) => (
+                                <label key={user.id} className={CompanyCSS.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
+                                        value={user.email}
+                                        onChange={handleChange}
+                                    />
+                                    {user.email}
+                                </label>
+                            ))}
+                        </div>
+                    ) : (
+                        <p>No users available</p>
+                    )}
+                </div>
+
                 <div className={CompanyCSS.modalActions}>
                     <button onClick={handleSubmit}>Add</button>
                     <button onClick={onClose}>Cancel</button>

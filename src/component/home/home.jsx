@@ -49,13 +49,11 @@ const Home = () => {
         }
     };
 
-    // Hàm xử lý chỉnh sửa người dùng (giữ placeholder ở đây)
     const handleEdit = (userId) => {
         alert(`Edit user with ID: ${userId}`);
         // Thêm logic chỉnh sửa tại đây (chuyển hướng đến trang chỉnh sửa hoặc hiển thị form)
     };
 
-    // Gọi fetchUsers khi component được render lần đầu
     useEffect(() => {
         fetchUsers();
     }, []);
