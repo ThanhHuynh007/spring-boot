@@ -1,25 +1,25 @@
 package com.example.demo2.service;
 
-
 import com.example.demo2.dto.CompanyDTO;
 import com.example.demo2.dto.UserDTO;
 import com.example.demo2.model.Company;
 import com.example.demo2.model.UserDemo;
 import com.example.demo2.repository.CompanyRepository;
-import jakarta.transaction.Transactional;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Data
 public class CompanyService {
+
     @Autowired
     private CompanyRepository companyRepository;
 
+    // Lấy danh sách tất cả các công ty với roleName thay vì roleId
     public List<CompanyDTO> getAllCompanies() {
         List<Company> companies = companyRepository.findAll();
 
@@ -32,7 +32,8 @@ public class CompanyService {
                                         user.getId(),
                                         user.getEmail(),
                                         user.getFirstName(),
-                                        user.getLastName()
+                                        user.getLastName(),
+                                        user.getRole() != null ? user.getRole().getName() : null // Lấy roleName thay vì roleId
                                 ))
                                 .collect(Collectors.toList())
                 ))
@@ -50,7 +51,6 @@ public class CompanyService {
         for (UserDemo user : company.getUsers()) {
             user.setCompany(null);
         }
-
         companyRepository.delete(company);
     }
 
