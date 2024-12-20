@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 const BASE_URL = "http://localhost:8080/api";
 
 // Lấy token từ localStorage
@@ -18,47 +16,42 @@ const clearTokens = () => {
     localStorage.removeItem("refresh_token");
 };
 
-// Tạo instance của Axios với base URL và cấu hình mặc định
-const api = axios.create({
-    baseURL: BASE_URL,
-    headers: {
+// Tạo hàm để gửi request với Bearer token
+const fetchWithAuth = async (url, options = {}) => {
+    const accessToken = getAccessToken();
+    const headers = {
         "Content-Type": "application/json",
-    },
-});
+        ...options.headers,
+    };
 
-// Thêm một interceptor để tự động thêm Bearer token vào mỗi yêu cầu
-api.interceptors.request.use(
-    (config) => {
-        const accessToken = getAccessToken();
-        if (accessToken) {
-            config.headers["Authorization"] = `Bearer ${accessToken}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+    if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
     }
-);
+
+    const response = await fetch(url, {
+        ...options,
+        headers,
+    });
+
+    return response;
+};
 
 // Xử lý phản hồi (response) và tự động làm mới token nếu hết hạn
-api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            const refreshed = await refreshAccessToken();
-            if (refreshed) {
-                return api(originalRequest); // Gửi lại yêu cầu sau khi làm mới token
-            } else {
-                clearTokens(); // Xóa token khi refresh thất bại
-                window.location.href = "/login"; // Điều hướng đến trang đăng nhập
-                return Promise.reject(error);
-            }
+const handleResponse = async (response, originalRequest) => {
+    if (response.status === 401) {
+        // Token expired, try to refresh the access token
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+            // Retry original request with the new access token
+            return fetchWithAuth(originalRequest.url, originalRequest);
+        } else {
+            clearTokens(); // Xóa token khi refresh thất bại
+            window.location.href = "/login"; // Điều hướng đến trang đăng nhập
         }
-        return Promise.reject(error);
     }
-);
+
+    return response;
+};
 
 // Làm mới token
 const refreshAccessToken = async () => {
@@ -68,12 +61,14 @@ const refreshAccessToken = async () => {
     }
 
     try {
-        const response = await api.post("/auth/refresh", {
-            refresh_token: refreshToken,
+        const response = await fetchWithAuth(`${BASE_URL}/auth/refresh`, {
+            method: "POST",
+            body: JSON.stringify({ refresh_token: refreshToken }),
         });
 
-        if (response.status === 200) {
-            const { access_token, refresh_token } = response.data;
+        if (response.ok) {
+            const data = await response.json();
+            const { access_token, refresh_token } = data;
             setTokens(access_token, refresh_token);
             return true;
         } else {
@@ -89,14 +84,19 @@ const refreshAccessToken = async () => {
 // Đăng nhập
 const login = async (email, password) => {
     try {
-        const response = await api.post("/login", {
-            email,
-            password,
+        const response = await fetch(`${BASE_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
         });
 
-        const { access_token, refresh_token } = response.data;
+        if (!response.ok) {
+            throw new Error("Login failed");
+        }
+
+        const { access_token, refresh_token } = await response.json();
         setTokens(access_token, refresh_token);
-        return response.data;
+        return { access_token, refresh_token };
     } catch (error) {
         console.error("Login failed:", error);
         throw error;
@@ -110,7 +110,7 @@ const logout = () => {
 };
 
 export default {
-    api,
+    fetchWithAuth,
     login,
     logout,
 };

@@ -1,12 +1,15 @@
 import { useState } from "react";
 import LoginCSS from "./login.module.css";
-import api from "../../config/config";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import api from "../../config/config"; // Import API module
 
 export default function Login() {
     const [isActive, setIsActive] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState(""); // State để lưu thông báo lỗi
+    const [error, setError] = useState(""); // State to hold error messages
+
+    const navigate = useNavigate(); // Initialize useNavigate
 
     const handleRegisterClick = () => {
         setIsActive(true);
@@ -17,27 +20,27 @@ export default function Login() {
     };
 
     const handleLogin = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent form from refreshing the page
         try {
-            // Gọi hàm login từ module api.js
+            // Call login function from the API module
             const data = await api.login(email, password);
 
             if (data && data.access_token) {
-                window.location.href = "/";
+                // Redirect to the home page after successful login
+                navigate("/"); // Change to the home page path
             } else {
                 throw new Error("Token is missing");
             }
             // eslint-disable-next-line no-unused-vars
         } catch (error) {
-            setError("Invalid email or password"); // Hiển thị lỗi nếu đăng nhập thất bại
+            setError("Invalid email or password"); // Display error message
         }
     };
 
     return (
-
         <div className={`${LoginCSS["centered-wrapper"]}`}>
             <div className={`${LoginCSS.container} ${isActive ? LoginCSS.active : ""}`} id="container">
-                {/* Form Đăng ký */}
+                {/* Sign-up Form */}
                 <div className={`${LoginCSS["form-container"]} ${LoginCSS["sign-up"]}`}>
                     <form>
                         <h1>Create Account</h1>
@@ -49,11 +52,10 @@ export default function Login() {
                     </form>
                 </div>
 
-                {/* Form Đăng nhập */}
+                {/* Sign-in Form */}
                 <div className={`${LoginCSS["form-container"]} ${LoginCSS["sign-in"]}`}>
                     <form onSubmit={handleLogin}>
                         <h1>Sign In</h1>
-
                         <span>or use your email and password</span>
                         <input
                             type="email"
@@ -69,13 +71,13 @@ export default function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
-                        {error && <div className={LoginCSS.error}>{error}</div>} {/* Hiển thị lỗi nếu có */}
+                        {error && <div className={LoginCSS.error}>{error}</div>} {/* Display error message */}
                         <a href="#">Forgot Your Password?</a>
                         <button type="submit">Sign In</button>
                     </form>
                 </div>
 
-                {/* Toggle giữa đăng ký và đăng nhập */}
+                {/* Toggle between sign-up and sign-in */}
                 <div className={LoginCSS["toggle-container"]}>
                     <div className={LoginCSS.toggle}>
                         <div className={`${LoginCSS["toggle-panel"]} ${LoginCSS["toggle-left"]}`}>
