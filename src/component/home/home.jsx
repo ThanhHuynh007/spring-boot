@@ -1,39 +1,64 @@
-import { useState, useEffect } from 'react';
-import HomeCSS from './home.module.css';
-import instance from '../../config/config';
+import { useState, useEffect } from "react";
+import HomeCSS from "./home.module.css";
+import instance from "../../config/config";
 
 const Home = () => {
-    const [users, setUsers] = useState([]); // Sử dụng state để lưu trữ danh sách người dùng
+    const [users, setUsers] = useState([]); // Lưu danh sách người dùng
     const [error, setError] = useState(""); // Lưu lỗi nếu có
 
+    // Hàm fetch danh sách người dùng
     const fetchUsers = async () => {
         try {
-            const response = await instance.getUser();  // Lấy dữ liệu người dùng
+            const response = await instance.getUser();
 
             // Log phản hồi để kiểm tra dữ liệu trả về
             console.log("Full response:", response);
 
-            // Kiểm tra xem phản hồi có phải là một mảng không
+            // Kiểm tra dữ liệu và cập nhật state
             if (Array.isArray(response)) {
-                console.log("Fetched users:", response); // Log danh sách người dùng
-
-                // Cập nhật state với dữ liệu người dùng
                 setUsers(response);
             } else {
                 throw new Error("Invalid data format received.");
             }
         } catch (error) {
             setError("Failed to fetch users");
-            console.error('Request failed', error);
+            console.error("Request failed", error);
         }
     };
 
+    // Hàm xử lý xóa người dùng
+    const handleDelete = async (userId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+        if (confirmDelete) {
+            try {
+                const response = await instance.deleteUser(userId);
 
+                // Kiểm tra nếu có lỗi
+                if (response.error) {
+                    alert(`Failed to delete user: ${response.error}`);
+                } else {
+                    alert("User deleted successfully");
 
-    // Sử dụng useEffect để gọi fetchUsers khi component mount
+                    // Cập nhật lại danh sách người dùng sau khi xóa
+                    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+                }
+            } catch (error) {
+                console.error("Error deleting user:", error);
+                alert("An error occurred while deleting the user.");
+            }
+        }
+    };
+
+    // Hàm xử lý chỉnh sửa người dùng (giữ placeholder ở đây)
+    const handleEdit = (userId) => {
+        alert(`Edit user with ID: ${userId}`);
+        // Thêm logic chỉnh sửa tại đây (chuyển hướng đến trang chỉnh sửa hoặc hiển thị form)
+    };
+
+    // Gọi fetchUsers khi component được render lần đầu
     useEffect(() => {
         fetchUsers();
-    }, []);  // Chỉ gọi 1 lần khi component được render lần đầu
+    }, []);
 
     // Nếu có lỗi, hiển thị lỗi
     if (error) {
@@ -57,7 +82,10 @@ const Home = () => {
                     <div className={HomeCSS.recentOrders}>
                         <div className={HomeCSS.cardHeader}>
                             <h2>User List</h2>
-                            <button className={HomeCSS.addUserBtn} onClick={() => alert('Add User clicked!')}>
+                            <button
+                                className={HomeCSS.addUserBtn}
+                                onClick={() => alert("Add User clicked!")}
+                            >
                                 Add User
                             </button>
                         </div>
@@ -70,6 +98,7 @@ const Home = () => {
                                     <th>Last Name</th>
                                     <th>Role</th>
                                     <th>Company</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -80,12 +109,26 @@ const Home = () => {
                                             <td>{user.firstName}</td>
                                             <td>{user.lastName}</td>
                                             <td>{user.roleName}</td>
-                                            <td>{user.company}</td>
+                                            <td>{user.companyName}</td>
+                                            <td>
+                                                <button
+                                                    className={HomeCSS.editBtn}
+                                                    onClick={() => handleEdit(user.id)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className={HomeCSS.deleteBtn}
+                                                    onClick={() => handleDelete(user.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5">No users found</td> {/* Hiển thị thông báo nếu không có người dùng */}
+                                        <td colSpan="6">No users found</td>
                                     </tr>
                                 )}
                             </tbody>

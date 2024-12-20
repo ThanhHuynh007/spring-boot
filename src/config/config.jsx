@@ -46,6 +46,10 @@ const instance = {
         });
     },
 
+    async delete(url, options = {}) {
+        return this.request(url, { ...options, method: "DELETE" });
+    },
+
     async login(email, password) {
         try {
             const data = await this.post("/login", { email, password });
@@ -80,7 +84,18 @@ const instance = {
             console.error("Error fetching users:", error);
             return { error: error.message };
         }
-    }
+    },
+
+    async deleteUser(userId) {
+        try {
+            const data = await this.delete(`/admin/delete/${userId}`);
+            console.log("User deleted successfully:", data);
+            return data;
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            return { error: error.message };
+        }
+    },
 };
 
 export default instance;
