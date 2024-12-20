@@ -1,69 +1,40 @@
-import { useState, useEffect } from "react";
-import HomeCSS from "./home.module.css";
-import instance from "../../config/config";
+import { useState } from 'react';
+import HomeCSS from './home.module.css';
+import AddUserModal from './AddUserModal';
+
+const initialUsers = [
+    { id: 1, first_name: 'David', last_name: 'Smith', role: 'Admin', company: 'TechCorp' },
+    { id: 2, first_name: 'Amit', last_name: 'Sharma', role: 'User', company: 'InnoTech' },
+    { id: 3, first_name: 'John', last_name: 'Doe', role: 'Manager', company: 'Globex' },
+    { id: 4, first_name: 'Sophia', last_name: 'Johnson', role: 'Developer', company: 'SoftWareX' },
+];
 
 const Home = () => {
-    const [users, setUsers] = useState([]); // Lưu danh sách người dùng
-    const [error, setError] = useState(""); // Lưu lỗi nếu có
+    const [users, setUsers] = useState(initialUsers);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
 
-    // Hàm fetch danh sách người dùng
-    const fetchUsers = async () => {
-        try {
-            const response = await instance.getUser();
+    const handleAddUser = (newUser) => {
+        setUsers([...users, { ...newUser, id: Date.now() }]);
+    };
 
-            // Log phản hồi để kiểm tra dữ liệu trả về
-            console.log("Full response:", response);
+    const handleEdit = (user) => {
+        setCurrentUser(user);
+        setIsEditModalOpen(true);
+    };
 
-            // Kiểm tra dữ liệu và cập nhật state
-            if (Array.isArray(response)) {
-                setUsers(response);
-            } else {
-                throw new Error("Invalid data format received.");
-            }
-        } catch (error) {
-            setError("Failed to fetch users");
-            console.error("Request failed", error);
+    const handleDelete = (id) => {
+        if (window.confirm(`Are you sure you want to delete user with ID: ${id}?`)) {
+            setUsers(users.filter((user) => user.id !== id));
         }
     };
 
-    // Hàm xử lý xóa người dùng
-    const handleDelete = async (userId) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-        if (confirmDelete) {
-            try {
-                const response = await instance.deleteUser(userId);
-
-                // Kiểm tra nếu có lỗi
-                if (response.error) {
-                    alert(`Failed to delete user: ${response.error}`);
-                } else {
-                    alert("User deleted successfully");
-
-                    // Cập nhật lại danh sách người dùng sau khi xóa
-                    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-                }
-            } catch (error) {
-                console.error("Error deleting user:", error);
-                alert("An error occurred while deleting the user.");
-            }
-        }
+    const handleEditSave = () => {
+        setUsers(users.map((user) => (user.id === currentUser.id ? currentUser : user)));
+        setIsEditModalOpen(false);
+        setCurrentUser(null);
     };
-
-    // Hàm xử lý chỉnh sửa người dùng (giữ placeholder ở đây)
-    const handleEdit = (userId) => {
-        alert(`Edit user with ID: ${userId}`);
-        // Thêm logic chỉnh sửa tại đây (chuyển hướng đến trang chỉnh sửa hoặc hiển thị form)
-    };
-
-    // Gọi fetchUsers khi component được render lần đầu
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    // Nếu có lỗi, hiển thị lỗi
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
 
     return (
         <div className={HomeCSS.wrapper}>
@@ -77,14 +48,13 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* User List Table */}
                 <div className={HomeCSS.details}>
                     <div className={HomeCSS.recentOrders}>
                         <div className={HomeCSS.cardHeader}>
                             <h2>User List</h2>
                             <button
                                 className={HomeCSS.addUserBtn}
-                                onClick={() => alert("Add User clicked!")}
+                                onClick={() => setIsAddModalOpen(true)}
                             >
                                 Add User
                             </button>
@@ -102,39 +72,92 @@ const Home = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.length > 0 ? (
-                                    users.map((user) => (
-                                        <tr key={user.id}>
-                                            <td>{user.id}</td>
-                                            <td>{user.firstName}</td>
-                                            <td>{user.lastName}</td>
-                                            <td>{user.roleName}</td>
-                                            <td>{user.companyName}</td>
-                                            <td>
-                                                <button
-                                                    className={HomeCSS.editBtn}
-                                                    onClick={() => handleEdit(user.id)}
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    className={HomeCSS.deleteBtn}
-                                                    onClick={() => handleDelete(user.id)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="6">No users found</td>
+                                {users.map((user) => (
+                                    <tr key={user.id}>
+                                        <td>{user.id}</td>
+                                        <td>{user.first_name}</td>
+                                        <td>{user.last_name}</td>
+                                        <td>{user.role}</td>
+                                        <td>{user.company}</td>
+                                        <td>
+                                            <button
+                                                className={HomeCSS.editBtn}
+                                                onClick={() => handleEdit(user)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className={HomeCSS.deleteBtn}
+                                                onClick={() => handleDelete(user.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
                                     </tr>
-                                )}
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                {isAddModalOpen && (
+                    <AddUserModal
+                        onAdd={handleAddUser}
+                        onClose={() => setIsAddModalOpen(false)}
+                    />
+                )}
+
+                {isEditModalOpen && currentUser && (
+                    <div className={HomeCSS.modal}>
+                        <div className={HomeCSS.modalContent}>
+                            <h2>Edit User</h2>
+                            <label>
+                                First Name:
+                                <input
+                                    type="text"
+                                    value={currentUser.first_name}
+                                    onChange={(e) =>
+                                        setCurrentUser({ ...currentUser, first_name: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Last Name:
+                                <input
+                                    type="text"
+                                    value={currentUser.last_name}
+                                    onChange={(e) =>
+                                        setCurrentUser({ ...currentUser, last_name: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Role:
+                                <input
+                                    type="text"
+                                    value={currentUser.role}
+                                    onChange={(e) =>
+                                        setCurrentUser({ ...currentUser, role: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Company:
+                                <input
+                                    type="text"
+                                    value={currentUser.company}
+                                    onChange={(e) =>
+                                        setCurrentUser({ ...currentUser, company: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <div className={HomeCSS.modalActions}>
+                                <button onClick={handleEditSave}>Save</button>
+                                <button onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
