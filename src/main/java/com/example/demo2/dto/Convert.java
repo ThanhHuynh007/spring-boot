@@ -52,6 +52,7 @@ public class Convert {
                         user.getEmail(),
                         user.getFirstName(),
                         user.getLastName(),
+                        user.getCompany() != null ? user.getCompany().getName() : null, // companyName từ công ty
                         user.getRole() != null ? user.getRole().getName() : null  // Lấy roleName thay vì roleId
                 ))
                 .collect(Collectors.toList());
@@ -74,7 +75,7 @@ public class Convert {
                 user.getFirstName(),
                 user.getLastName(),
                 companyName,
-                user.getRole() != null ? user.getRole().getName() : null  // Lấy roleName thay vì roleId
+                user.getRole() != null ? user.getRole().getName() : null  // roleName lấy từ Role thay vì roleId
         );
     }
 }

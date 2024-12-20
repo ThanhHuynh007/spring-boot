@@ -33,6 +33,7 @@ public class CompanyService {
                                         user.getEmail(),
                                         user.getFirstName(),
                                         user.getLastName(),
+                                        user.getCompany().getName(),
                                         user.getRole() != null ? user.getRole().getName() : null // Lấy roleName thay vì roleId
                                 ))
                                 .collect(Collectors.toList())
