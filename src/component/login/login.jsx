@@ -26,16 +26,19 @@ export default function Login() {
             const data = await api.login(email, password);
 
             if (data && data.access_token) {
+                // Lưu token vào localStorage
+                localStorage.setItem("access_token", data.access_token);
+
                 // Redirect to the home page after successful login
-                navigate("/"); // Change to the home page path
+                navigate("/home"); // Chuyển hướng đến trang home
             } else {
                 throw new Error("Token is missing");
             }
-            // eslint-disable-next-line no-unused-vars
         } catch (error) {
             setError("Invalid email or password"); // Display error message
         }
     };
+
 
     return (
         <div className={`${LoginCSS["centered-wrapper"]}`}>

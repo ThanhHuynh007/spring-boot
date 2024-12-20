@@ -2,18 +2,21 @@ const BASE_URL = "http://localhost:8080/api";
 
 // Lấy token từ localStorage
 const getAccessToken = () => localStorage.getItem("access_token");
-const getRefreshToken = () => localStorage.getItem("refresh_token");
+const getEmail = () => localStorage.getItem("email");
+const getPassword = () => localStorage.getItem("password");
 
-// Lưu trữ token vào localStorage
-const setTokens = (accessToken, refreshToken) => {
+// Lưu trữ token và thông tin người dùng vào localStorage
+const setTokens = (accessToken, email, password) => {
     localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("refresh_token", refreshToken);
+    localStorage.setItem("email", email);
+    localStorage.setItem("password", password);
 };
 
 // Xóa token khi đăng xuất
 const clearTokens = () => {
     localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("email");
+    localStorage.removeItem("password");
 };
 
 // Tạo hàm để gửi request với Bearer token
@@ -55,26 +58,17 @@ const handleResponse = async (response, originalRequest) => {
 
 // Làm mới token
 const refreshAccessToken = async () => {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
-        return false; // Return false if no refresh token is available
+    const email = getEmail();
+    const password = getPassword();
+
+    if (!email || !password) {
+        return false; // Return false if no email or password is available
     }
 
     try {
-        const response = await fetchWithAuth(`${BASE_URL}/auth/refresh`, {
-            method: "POST",
-            body: JSON.stringify({ refresh_token: refreshToken }),
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            const { access_token, refresh_token } = data;
-            setTokens(access_token, refresh_token);
-            return true;
-        } else {
-            console.error("Failed to refresh token:", response.status);
-            return false;
-        }
+        // Đăng nhập lại với email và password để lấy access token mới
+        const response = await login(email, password);
+        return response ? true : false;
     } catch (error) {
         console.error("Token refresh failed:", error);
         return false;
@@ -94,9 +88,9 @@ const login = async (email, password) => {
             throw new Error("Login failed");
         }
 
-        const { access_token, refresh_token } = await response.json();
-        setTokens(access_token, refresh_token);
-        return { access_token, refresh_token };
+        const { access_token } = await response.json();
+        setTokens(access_token, email, password); // Lưu token và thông tin người dùng
+        return { access_token };
     } catch (error) {
         console.error("Login failed:", error);
         throw error;
