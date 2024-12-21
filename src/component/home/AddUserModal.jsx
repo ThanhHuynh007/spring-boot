@@ -11,20 +11,20 @@ const AddUserModal = ({ onClose, fetchUsers }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false); // Added loading state
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
-            const response = await instance.addUser({
+            const response = await instance.addUser(
                 firstName, lastName, email, password
-            });
+            );
 
             if (response.error) {
                 setError(response.error);
             } else {
-                onClose();
-                fetchUsers();
+                onClose(); // Close modal
+                fetchUsers(); // Refresh user list
             }
         } catch (err) {
             console.error('Error registering user:', err);
