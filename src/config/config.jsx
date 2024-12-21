@@ -76,6 +76,15 @@ const instance = {
         }
     },
 
+    async addUser(firstName, lastName, email, password) {
+        try {
+            await this.post("/register", { firstName, lastName, email, password });
+        } catch (error) {
+            console.error("Lỗi đăng ký:", error);
+            return { error: error.message };
+        }
+    },
+
     async getUser() {
         try {
             const data = await this.get("/admin/users");
@@ -129,14 +138,7 @@ const instance = {
 
     async addCompany(name, userEmails) {
         try {
-            // Kiểm tra userEmails có phải là mảng không
-            if (!Array.isArray(userEmails)) {
-                throw new Error("userEmails phải là mảng");
-            }
-
-            // Gửi yêu cầu POST đến API với mảng userEmails
             const data = await this.post("/admin/company/add", { name, userEmails });
-
 
             return data;
         } catch (error) {

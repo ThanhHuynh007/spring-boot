@@ -1,27 +1,36 @@
 import { useState } from 'react';
 import HomeCSS from './home.module.css';
+import instance from '../../config/config'; // Assuming this imports the API instance
 
-const AddUserModal = ({ onAdd, onClose }) => {
-    const [newUser, setNewUser] = useState({
-        first_name: '',
-        last_name: '',
-        role: '',
-        company: '',
-        image: ''
-    });
+// eslint-disable-next-line react/prop-types
+const AddUserModal = ({ onClose, fetchUsers }) => {
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // Added loading state
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewUser({ ...newUser, [name]: value });
-    };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (newUser.first_name && newUser.last_name && newUser.role && newUser.company) {
-            onAdd(newUser);
-            onClose();
-        } else {
-            alert('Please fill out all fields.');
+
+        try {
+            const response = await instance.addUser({
+                firstName, lastName, email, password
+            });
+
+            if (response.error) {
+                setError(response.error);
+            } else {
+                onClose();
+                fetchUsers();
+            }
+        } catch (err) {
+            console.error('Error registering user:', err);
+            setError('Failed to register user. Please try again later.');
+        } finally {
+            setLoading(false); // Set loading to false after request completes
         }
     };
 
@@ -29,14 +38,15 @@ const AddUserModal = ({ onAdd, onClose }) => {
         <div className={HomeCSS.modalOverlay}>
             <div className={HomeCSS.modalContent}>
                 <h2>Add New User</h2>
+                {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <label>
                         First Name:
                         <input
                             type="text"
-                            name="first_name"
-                            value={newUser.first_name}
-                            onChange={handleInputChange}
+                            name="firstName"
+                            value={firstName}
+                            onChange={(u) => setFirstName(u.target.value)}
                             required
                         />
                     </label>
@@ -44,43 +54,36 @@ const AddUserModal = ({ onAdd, onClose }) => {
                         Last Name:
                         <input
                             type="text"
-                            name="last_name"
-                            value={newUser.last_name}
-                            onChange={handleInputChange}
+                            name="lastName"
+                            value={lastName}
+                            onChange={(u) => setLastName(u.target.value)}
                             required
                         />
                     </label>
                     <label>
-                        Role:
+                        Email:
                         <input
-                            type="text"
-                            name="role"
-                            value={newUser.role}
-                            onChange={handleInputChange}
+                            type="email"
+                            name="email"
+                            value={email}
+                            onChange={(u) => setEmail(u.target.value)}
                             required
                         />
                     </label>
                     <label>
-                        Company:
+                        Password:
                         <input
-                            type="text"
-                            name="company"
-                            value={newUser.company}
-                            onChange={handleInputChange}
+                            type="password"
+                            name="password"
+                            value={password}
+                            onChange={(u) => setPassword(u.target.value)}
                             required
-                        />
-                    </label>
-                    <label>
-                        Profile Image URL:
-                        <input
-                            type="text"
-                            name="image"
-                            value={newUser.image}
-                            onChange={handleInputChange}
                         />
                     </label>
                     <div className={HomeCSS.modalActions}>
-                        <button type="submit">Add</button>
+                        <button type="submit" disabled={loading}>
+                            {loading ? 'Adding...' : 'Add'} {/* Change button text while loading */}
+                        </button>
                         <button type="button" onClick={onClose}>Cancel</button>
                     </div>
                 </form>

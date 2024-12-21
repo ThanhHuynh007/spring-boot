@@ -1,53 +1,85 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Import useEffect
 import HomeCSS from './home.module.css';
 import AddUserModal from './AddUserModal';
-
-const initialUsers = [
-    { id: 1, first_name: 'David', last_name: 'Smith', role: 'Admin', company: 'TechCorp' },
-    { id: 2, first_name: 'Amit', last_name: 'Sharma', role: 'User', company: 'InnoTech' },
-    { id: 3, first_name: 'John', last_name: 'Doe', role: 'Manager', company: 'Globex' },
-    { id: 4, first_name: 'Sophia', last_name: 'Johnson', role: 'Developer', company: 'SoftWareX' },
-];
+import instance from '../../config/config';
 
 const Home = () => {
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState([]); // Start with an empty array
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
+    const [error, setError] = useState(""); // Error state for handling fetch errors
 
-    const handleAddUser = (newUser) => {
-        setUsers([...users, { ...newUser, id: Date.now() }]);
-    };
-
-    const handleEdit = (user) => {
-        setCurrentUser(user);
-        setIsEditModalOpen(true);
-    };
-
-    const handleDelete = (id) => {
-        if (window.confirm(`Are you sure you want to delete user with ID: ${id}?`)) {
-            setUsers(users.filter((user) => user.id !== id));
-        }
-    };
-
-    const handleEditSave = () => {
-        setUsers(users.map((user) => (user.id === currentUser.id ? currentUser : user)));
-        setIsEditModalOpen(false);
-        setCurrentUser(null);
-    };
-
-    const handleEdit = (userId) => {
-        alert(`Edit user with ID: ${userId}`);
-        // Thêm logic chỉnh sửa tại đây (chuyển hướng đến trang chỉnh sửa hoặc hiển thị form)
-    };
-
+    // Fetch users on component mount
     useEffect(() => {
+        const fetchUsers = async () => {
+            const data = await instance.getUser();
+            if (data.error) {
+                setError(data.error);
+            } else {
+                setUsers(data);
+            }
+        };
         fetchUsers();
     }, []);
 
-    // Nếu có lỗi, hiển thị lỗi
+
+
+    // Fetch user details for editing
+    const handleEditOpen = async (userId) => {
+        try {
+            const userDetails = await instance.getUserDetail(userId); // Fetch user details for editing
+            if (userDetails.error) {
+                setError(userDetails.error);
+            } else {
+                setCurrentUser(userDetails); // Set user details in the state
+                setIsEditModalOpen(true);
+            }
+        } catch {
+            setError("Error fetching user details");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm(`Are you sure you want to delete user with ID: ${id}?`)) {
+            try {
+                await instance.deleteUser(id);
+                fetchUsers();
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user. Please try again later.');
+            }
+        }
+    };
+
+
+    const handleEditSave = async () => {
+        try {
+            const { firstName, lastName, email, password, id } = currentUser;
+            await instance.updateUser(firstName, lastName, email, password, id);
+
+            await fetchUsers(); // Fetch the updated users list
+            setIsEditModalOpen(false); // Close the modal
+            setCurrentUser(null);
+        } catch (error) {
+            console.error("Error saving user data:", error);
+        }
+    };
+
+
+
+    // Function to reload users
+    const fetchUsers = async () => {
+        const data = await instance.getUser();
+        if (data.error) {
+            setError(data.error);
+        } else {
+            setUsers(data); // Update the users state
+        }
+    };
+
     if (error) {
-        return <div>Error: {error}</div>;
+        return <div>Error: {error}</div>; // Display error message if any
     }
 
     return (
@@ -89,14 +121,14 @@ const Home = () => {
                                 {users.map((user) => (
                                     <tr key={user.id}>
                                         <td>{user.id}</td>
-                                        <td>{user.first_name}</td>
-                                        <td>{user.last_name}</td>
-                                        <td>{user.role}</td>
-                                        <td>{user.company}</td>
+                                        <td>{user.firstName}</td>
+                                        <td>{user.lastName}</td>
+                                        <td>{user.roleName}</td>
+                                        <td>{user.companyName}</td>
                                         <td>
                                             <button
                                                 className={HomeCSS.editBtn}
-                                                onClick={() => handleEdit(user)}
+                                                onClick={() => handleEditOpen(user.id)} // Open edit modal
                                             >
                                                 Edit
                                             </button>
@@ -116,8 +148,8 @@ const Home = () => {
 
                 {isAddModalOpen && (
                     <AddUserModal
-                        onAdd={handleAddUser}
                         onClose={() => setIsAddModalOpen(false)}
+                        fetchUsers={fetchUsers}
                     />
                 )}
 
@@ -129,9 +161,9 @@ const Home = () => {
                                 First Name:
                                 <input
                                     type="text"
-                                    value={currentUser.first_name}
+                                    value={currentUser.firstName}
                                     onChange={(e) =>
-                                        setCurrentUser({ ...currentUser, first_name: e.target.value })
+                                        setCurrentUser({ ...currentUser, firstName: e.target.value })
                                     }
                                 />
                             </label>
@@ -139,29 +171,19 @@ const Home = () => {
                                 Last Name:
                                 <input
                                     type="text"
-                                    value={currentUser.last_name}
+                                    value={currentUser.lastName}
                                     onChange={(e) =>
-                                        setCurrentUser({ ...currentUser, last_name: e.target.value })
+                                        setCurrentUser({ ...currentUser, lastName: e.target.value })
                                     }
                                 />
                             </label>
                             <label>
-                                Role:
+                                Email:
                                 <input
-                                    type="text"
-                                    value={currentUser.role}
+                                    type="email"
+                                    value={currentUser.email}
                                     onChange={(e) =>
-                                        setCurrentUser({ ...currentUser, role: e.target.value })
-                                    }
-                                />
-                            </label>
-                            <label>
-                                Company:
-                                <input
-                                    type="text"
-                                    value={currentUser.company}
-                                    onChange={(e) =>
-                                        setCurrentUser({ ...currentUser, company: e.target.value })
+                                        setCurrentUser({ ...currentUser, email: e.target.value })
                                     }
                                 />
                             </label>

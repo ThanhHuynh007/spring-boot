@@ -1,57 +1,66 @@
 import { useState, useEffect } from 'react';
 import CompanyCSS from './company.module.css';
-import instance from '../../config/config'; // Assuming this is where your getUser function is defined
+import instance from '../../config/config';
 
-const AddCompanyModal = ({ onAdd, onClose }) => {
+const AddCompanyModal = ({ onAdd, onClose, fetchCompanies }) => {
     const [newCompany, setNewCompany] = useState({
         name: '',
-        userEmails: [], // Store selected user emails here
+        userEmails: [],
     });
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Fetch user data when modal opens
     const fetchUserEmails = async () => {
         try {
             const users = await instance.getUser();
             if (Array.isArray(users)) {
-                setUsers(users); // Store users data
+                setUsers(users);
             } else {
-                throw new Error("Failed to fetch users");
+                throw new Error("Invalid data format for users.");
             }
-        } catch (error) {
-            setError("Failed to fetch user emails");
-            console.error(error);
+        } catch (err) {
+            setError("Failed to fetch user emails.");
+            console.error(err);
         }
     };
 
     useEffect(() => {
-        fetchUserEmails(); // Fetch user emails when modal opens
+        fetchUserEmails();
     }, []);
 
     const handleChange = (e) => {
         const { value, checked } = e.target;
-
-        // If checkbox is checked, add the email to userEmails, otherwise remove it
-        setNewCompany(prevState => {
-            const userEmails = checked
-                ? [...prevState.userEmails, value] // Add email if checked
-                : prevState.userEmails.filter(email => email !== value); // Remove email if unchecked
-            return { ...prevState, userEmails };
-        });
+        setNewCompany((prev) => ({
+            ...prev,
+            userEmails: checked
+                ? [...prev.userEmails, value]
+                : prev.userEmails.filter((email) => email !== value),
+        }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!newCompany.name || newCompany.userEmails.length === 0) {
             alert('Please fill in all fields and select at least one user email.');
             return;
         }
-        onAdd(newCompany); // Pass the new company data to onAdd
-        onClose(); // Close the modal
+
+        setIsSubmitting(true);
+
+        try {
+            await instance.addCompany(newCompany.name, newCompany.userEmails);
+            await fetchCompanies(); // Gọi lại fetchCompanies từ component cha
+            onClose(); // Đóng modal
+        } catch (err) {
+            setError('An error occurred while adding the company.');
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (error) {
-        return <div>Error: {error}</div>; // Display error if fetching users failed
+        return <div>Error: {error}</div>;
     }
 
     return (
@@ -67,6 +76,7 @@ const AddCompanyModal = ({ onAdd, onClose }) => {
                         onChange={(e) =>
                             setNewCompany({ ...newCompany, name: e.target.value })
                         }
+                        disabled={isSubmitting} // Disable input during submission
                     />
                 </label>
 
@@ -80,6 +90,7 @@ const AddCompanyModal = ({ onAdd, onClose }) => {
                                         type="checkbox"
                                         value={user.email}
                                         onChange={handleChange}
+                                        disabled={isSubmitting} // Disable during submission
                                     />
                                     {user.email}
                                 </label>
@@ -91,8 +102,10 @@ const AddCompanyModal = ({ onAdd, onClose }) => {
                 </div>
 
                 <div className={CompanyCSS.modalActions}>
-                    <button onClick={handleSubmit}>Add</button>
-                    <button onClick={onClose}>Cancel</button>
+                    <button onClick={handleSubmit} disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add'}
+                    </button>
+                    <button onClick={onClose} disabled={isSubmitting}>Cancel</button>
                 </div>
             </div>
         </div>

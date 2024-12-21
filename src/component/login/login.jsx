@@ -9,10 +9,10 @@ export default function Login() {
     const [isActive, setIsActive] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState(""); // State to hold error messages
+    const [error, setError] = useState("");
 
-    const navigate = useNavigate(); // Initialize useNavigate
-    let refreshInterval = null; // Store interval ID for token refresh
+    const navigate = useNavigate();
+    let refreshInterval = null;
 
     const handleRegisterClick = () => {
         setIsActive(true);
@@ -31,7 +31,6 @@ export default function Login() {
                 window.localStorage.setItem("persist:auth", JSON.stringify({ token: data.access_token }));
                 window.localStorage.setItem("email", email);
                 window.localStorage.setItem("password", password);
-                // startTokenRefresh();
                 navigate("/home");
             } else {
                 setError("No token received. Please try again.");

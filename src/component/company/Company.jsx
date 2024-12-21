@@ -4,17 +4,16 @@ import AddCompanyModal from './AddCompanyModal';
 import instance from '../../config/config';
 
 const Company = () => {
-    const [companies, setCompanies] = useState([]); // Initialize with an empty array
+    const [companies, setCompanies] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentCompany, setCurrentCompany] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [error, setError] = useState("");
 
-    // Fetch company data when component mounts
+    // Fetch companies from the API
     const fetchCompanies = async () => {
         try {
             const data = await instance.getCompany();
-            // If data is an array, set companies state, otherwise handle error
             if (Array.isArray(data)) {
                 setCompanies(data);
             } else {
@@ -22,41 +21,58 @@ const Company = () => {
             }
         } catch (error) {
             setError("Failed to fetch companies");
-            console.error('Request failed', error);
+            console.error("Request failed", error);
         }
     };
 
     useEffect(() => {
-        fetchCompanies(); // Call fetchCompanies on mount
-    }, []); // Empty array ensures this effect runs only once on mount
+        fetchCompanies();
+    }, []);
 
     const handleAddCompany = (newCompany) => {
-        setCompanies([...companies, { ...newCompany, id: Date.now() }]); // Add a new company
+        setCompanies([...companies, { ...newCompany, id: Date.now() }]);
     };
 
     const handleEdit = (company) => {
-        setCurrentCompany(company); // Set current company for editing
-        setIsModalOpen(true); // Open modal
+        setCurrentCompany(company);
+        setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
+    const handleEditSave = async () => {
+        try {
+            if (!currentCompany) return;
+
+            // Call the API to update the company
+            await instance.updateCompany(
+                currentCompany.name,
+                currentCompany.userEmails || [],
+                currentCompany.id
+            );
+
+            handleModalClose(); // Close modal immediately
+            fetchCompanies(); // Refresh the company list
+        } catch (error) {
+            console.error("Error updating company:", error);
+            setError("Failed to update company");
+        }
+    };
+
+    const handleDelete = async (id) => {
         if (window.confirm(`Are you sure you want to delete company with ID: ${id}?`)) {
-            setCompanies(companies.filter((company) => company.id !== id)); // Delete company by ID
+            try {
+                await instance.deleteCompany(id);
+
+                fetchCompanies(); // Refresh the company list
+            } catch (error) {
+                console.error("Error deleting company:", error);
+                setError("Failed to delete company");
+            }
         }
     };
 
     const handleModalClose = () => {
         setIsModalOpen(false);
         setCurrentCompany(null);
-    };
-
-    const handleSave = () => {
-        setCompanies(
-            companies.map((company) =>
-                company.id === currentCompany.id ? currentCompany : company
-            )
-        );
-        handleModalClose();
     };
 
     return (
@@ -141,6 +157,7 @@ const Company = () => {
                     <AddCompanyModal
                         onAdd={handleAddCompany}
                         onClose={() => setIsAddModalOpen(false)}
+                        fetchCompanies={fetchCompanies}
                     />
                 )}
 
@@ -159,7 +176,7 @@ const Company = () => {
                                     }
                                 />
                             </label>
-                            <label>
+                            {/* <label>
                                 Address:
                                 <input
                                     type="text"
@@ -178,9 +195,9 @@ const Company = () => {
                                         setCurrentCompany({ ...currentCompany, password: e.target.value })
                                     }
                                 />
-                            </label>
+                            </label> */}
                             <div className={CompanyCSS.modalActions}>
-                                <button onClick={handleSave}>Save</button>
+                                <button onClick={handleEditSave}>Save</button>
                                 <button onClick={handleModalClose}>Cancel</button>
                             </div>
                         </div>
