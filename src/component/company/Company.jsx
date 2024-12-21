@@ -106,8 +106,6 @@ const Company = () => {
                                 <tr>
                                     <th>ID</th>
                                     <th>Name</th>
-                                    <th>Address</th>
-                                    <th>Password</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -117,8 +115,6 @@ const Company = () => {
                                         <tr key={company.id}>
                                             <td>{company.id}</td>
                                             <td>{company.name}</td>
-                                            <td>{company.address}</td>
-                                            <td>{company.password}</td>
                                             <td>
                                                 <button
                                                     className={CompanyCSS.editBtn}
